@@ -1,32 +1,35 @@
-const mongodb= require('mongodb').MongoClient
-const url = "mongodb+srv://marilia:YoCccdWJGx5qCNr5@cluster0.izdwia8.mongodb.net/?retryWrites=true&w=majority";
+const express = require('express')
+const port = 3000
+const mongoose = require('mongoose')
 
-const obj=[
-    {nome:"Ana",sobrenome:"Santos"},
-    {nome:"Bruna",sobrenome:"Santos"},
-    {nome:"Carla",sobrenome:"Sales"},
-    {nome:"Joana",sobrenome:"Nascimento"},
-    {nome:"Pedro",sobrenome:"Silva"},
-    {nome:"Matheus",sobrenome:"Santos"},
-]
-async function run() {
-  try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
+const app = express()
+app.use(express.json())
 
- mongodb.connect(url,(erro,banco)=>{
-        if(erro)throw erro
-        const dbo=banco.db("Cadastro de nomes")
-        const colecao="cadastro"
-        dbo.collection(colecao).insertMany(obj,(erro,resultado)=>{
-            if(erro)throw erro
-             console.log(resultado.insertedCount + "novo curso inserido")
-            banco.close()
-        })  
+mongoose.connect('mongodb+srv://marisales194:3cL3tJvOLeuofYlc@filmes-api.wcjq52n.mongodb.net/?retryWrites=true&w=majority')
+
+const Film = mongoose.model('Film', {
+  title: String,
+  description: String,
+  image_url: String,
+  trailer_url: String,
+})
+
+app.get("/", (req,res) => {
+  res.json({message: 'Hello World!'}) 
+});
+
+app.post("/", async (req,res) =>{
+    const film = new Film({
+      title: req.body.title,
+      description: req.body.description,
+      image_url: req.body.image_url,
+      trailer_url: req.body.trailer_url
     })
-    await client.close();
-  }
-}
-run().catch(console.dir);
+
+  await film.save()
+  res.send(film)
+})
+
+app.listen(port, () => {
+    console.log(`Server funcionando na porta ${port}.`);
+});
